@@ -152,6 +152,7 @@ model = genai.GenerativeModel(
 st.set_page_config(page_title="ארנסטו: טר'ול אנליסט", layout="centered")
 
 st.title("🕶️ ארנסטו: טר'ול אנליסט")
+st.markdown('<style>body {direction: rtl; text-align: right;}</style>', unsafe_allow_html=True)
 st.subheader("חשיפת מניפולציות וטרור פסיכולוגי")
 
 # קלט מהמשתמש

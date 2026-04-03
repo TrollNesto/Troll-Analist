@@ -1,6 +1,5 @@
 import streamlit as st
 import google.generativeai as genai
-from google.generativeai.types import RequestOptions
 
 # הגדרת המפתח
 try:
@@ -9,10 +8,11 @@ try:
 except:
     st.error("חסר מפתח API ב-Secrets!")
 
-# יצירת המודל עם הגדרת גרסת ה-API באופן מפורש ל-v1
-model = genai.GenerativeModel('gemini-1.5-flash')
+# יצירת המודל - הכי פשוט שיש
+# אם 1.5-flash נותן 404, ננסה את השם המלא שלו
+model = genai.GenerativeModel('gemini-1.5-flash-latest')
 
-# הגדרת ה-SI
+# ה-SI של ארנסטו
 system_prompt = "אתה ארנסטו, אנליסט מחוספס לחשיפת מניפולציות. תענה תכלס, בעברית, בלי חרטות."
 
 st.title("ארנסטו: טר'ול אנליסט")
@@ -22,14 +22,22 @@ user_input = st.text_input("מה המניפולציה הפעם?")
 if st.button("נתח תכלס"):
     if user_input:
         try:
-            # כאן אנחנו מכריחים את הבקשה להשתמש ב-v1 ולא ב-v1beta
-            response = model.generate_content(
-                f"{system_prompt}\n\nסיפור: {user_input}",
-                request_options=RequestOptions(api_version='v1')
-            )
-            st.subheader("ארנסטו אומר:")
-            st.write(response.text)
+            # שימוש בשיטה הכי בסיסית של הספרייה
+            response = model.generate_content(f"{system_prompt}\n\nסיפור: {user_input}")
+            
+            if response.text:
+                st.subheader("ארנסטו אומר:")
+                st.write(response.text)
+            else:
+                st.error("המודל לא החזיר טקסט. ייתכן שיש חסימת תוכן.")
         except Exception as e:
-            st.error(f"שגיאה טכנית: {e}")
+            # אם גם זה נכשל ב-404, ננסה מודל חלופי באותה ריצה
+            try:
+                model_alt = genai.GenerativeModel('gemini-pro')
+                response = model_alt.generate_content(f"{system_prompt}\n\nסיפור: {user_input}")
+                st.subheader("ארנסטו אומר (via Pro):")
+                st.write(response.text)
+            except:
+                st.error(f"שגיאה סופית: {e}")
     else:
         st.write("תכתוב משהו, אל תהיה צבוע.")

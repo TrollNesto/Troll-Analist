@@ -2,6 +2,10 @@ import streamlit as st
 import google.generativeai as genai
 
 # הגדרת ה-API מהגדרות המערכת (Secrets)
+if "GEMINI_API_KEY" not in st.secrets:
+    st.error("שכחת להכניס את ה-API Key ב-Secrets!")
+    st.stop()
+
 api_key = st.secrets["GEMINI_API_KEY"]
 genai.configure(api_key=api_key)
 

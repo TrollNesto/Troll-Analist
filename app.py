@@ -1,42 +1,31 @@
 import streamlit as st
 import google.generativeai as genai
 
-# הגדרת ה-API Key מה-Secrets של Streamlit
-api_key = st.secrets["GEMINI_API_KEY"]
-genai.configure(api_key=api_key)
+# הגדרת המפתח מה-Secrets
+try:
+    api_key = st.secrets["GEMINI_API_KEY"]
+    genai.configure(api_key=api_key)
+except:
+    st.error("חסר מפתח API ב-Secrets!")
 
-# הגדרת המודל המדויק שראית בסטודיו (Nano Banana)
-model = genai.GenerativeModel('gemini-2.5-flash-image')
+# שימוש במודל הכי יציב שיש לגוגל בחינם
+model = genai.GenerativeModel('gemini-1.5-flash')
 
-# כאן תדביק את ה-SI המלא של ארנסטו מהסטודיו
-system_instructions = """
-זהות: אתה ארנסטו, אנליסט לחשיפת מניפולציות.
-הנחיות: נתח את הטקסט לפי מילון החיות והוצא תמונה קולנועית מחוספסת.
-(מומלץ להדביק כאן את כל ה-SI שיש לך בסטודיו)
-"""
+# ה-SI המקוצר של ארנסטו
+system_prompt = "אתה ארנסטו, אנליסט מחוספס לחשיפת מניפולציות. תענה תכלס, בעברית, בלי חרטות."
 
-st.title("ארנסטו: טר'ול אנליסט")
+st.title("ארנסטו: טר'ול אנליסט (גרסת טקסט)")
 
-user_input = st.text_area("מה הסיפור? (תכתוב כאן מה קרה):", placeholder="למשל: אחותי שוב עושה לי גזלייטינג...")
+user_input = st.text_input("מה המניפולציה הפעם?")
 
-if st.button("נתח והוצא תמונה"):
+if st.button("נתח תכלס"):
     if user_input:
-        with st.spinner("ארנסטו בודק את הקומבינה..."):
-            try:
-                # שליחת הבקשה למודל עם ה-SI
-                response = model.generate_content([system_instructions, user_input])
-                
-                # הצגת הטקסט (הניתוח)
-                st.subheader("הניתוח של ארנסטו:")
-                st.write(response.text)
-                
-                # הצגת התמונה (אם המודל ג'ינרט אחת)
-                if response.candidates[0].content.parts:
-                    for part in response.candidates[0].content.parts:
-                        if part.inline_data: # בדיקה אם יש נתוני תמונה
-                            st.image(part.inline_data.data, caption="האמת של ארנסטו")
-            
-            except Exception as e:
-                st.error(f"שגיאה טכנית: {e}")
+        try:
+            # בקשת טקסט פשוטה - בלי תמונות ובלי סיבוכים
+            response = model.generate_content(f"{system_prompt}\n\nהנה הסיפור: {user_input}")
+            st.subheader("ארנסטו אומר:")
+            st.write(response.text)
+        except Exception as e:
+            st.error(f"שגיאה: {e}")
     else:
-        st.warning("תכתוב משהו, אל תהיה חפרפרת.")
+        st.write("תכתוב משהו, אל תהיה צבוע.")

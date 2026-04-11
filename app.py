@@ -10,7 +10,7 @@ except:
 
 # יצירת המודל - הכי פשוט שיש
 # אם 1.5-flash נותן 404, ננסה את השם המלא שלו
-model = genai.GenerativeModel('gemini-1.5-flash-latest')
+model = genai.GenerativeModel('gemini-2.0-flash-latest')
 
 # ה-SI של ארנסטו
 system_prompt = "אתה ארנסטו, אנליסט מחוספס לחשיפת מניפולציות. תענה תכלס, בעברית, בלי חרטות."
